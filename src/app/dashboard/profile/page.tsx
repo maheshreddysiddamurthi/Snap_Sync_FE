@@ -4,6 +4,9 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { useCallback, useEffect, useState } from 'react';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Image from 'next/image';
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
+import Link from 'next/link';
 
 interface UserDetails {
     role?: string;
@@ -14,19 +17,44 @@ interface UserDetails {
     emailVerified?: boolean;
     firstName?: string;
     lastName?: string;
-    nickname?: string;
+    mobileNumber?: string;
 }
 
 export default function ProfilePage() {
     const { user, getAccessTokenSilently } = useAuth0();
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
-    const [nickname, setNickname] = useState('');
+    const [mobileNumber, setMobileNumber] = useState('');
     const [message, setMessage] = useState('');
     const [loading, setLoading] = useState(false);
     const [profile, setProfile] = useState<UserDetails | null>(null);
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const [imageFile, setImageFile] = useState<File | null>(null);
+    const [countryCode, setCountryCode] = useState('+91');
+
+    const countryCodes = [
+        { code: "+1", name: "United States" },
+        { code: "+91", name: "India" },
+        { code: "+44", name: "United Kingdom" },
+        { code: "+61", name: "Australia" },
+        { code: "+81", name: "Japan" },
+        { code: "+49", name: "Germany" },
+        { code: "+33", name: "France" },
+        { code: "+86", name: "China" },
+        { code: "+7", name: "Russia" },
+        { code: "+39", name: "Italy" },
+        { code: "+34", name: "Spain" },
+        { code: "+55", name: "Brazil" },
+        { code: "+27", name: "South Africa" },
+        { code: "+82", name: "South Korea" },
+        { code: "+966", name: "Saudi Arabia" },
+        { code: "+971", name: "United Arab Emirates" },
+        { code: "+880", name: "Bangladesh" },
+        { code: "+92", name: "Pakistan" },
+        { code: "+20", name: "Egypt" },
+        { code: "+62", name: "Indonesia" },
+        // ... (add more as needed, or use a full list from a package)
+    ];
 
     // Fetch profile info from backend
     const fetchProfile = useCallback(async () => {
@@ -45,7 +73,7 @@ export default function ProfilePage() {
                         sub: user.sub,
                         email: user.email,
                         name: user.name,
-                        nickname: user.nickname,
+                        mobileNumber: user.mobileNumber,
                         picture: user.picture,
                         email_verified: user.email_verified,
                         updated_at: user.updated_at,
@@ -57,7 +85,7 @@ export default function ProfilePage() {
             setProfile(data.user);
             setFirstName(data.user.firstName || '');
             setLastName(data.user.lastName || '');
-            setNickname(data.user.nickname || user?.nickname || '');
+            setMobileNumber(data.user.mobileNumber || user?.mobileNumber || '');
             setSelectedImage(data.user.picture || user?.picture || null);
         } catch {
             setMessage('Failed to load profile');
@@ -83,6 +111,38 @@ export default function ProfilePage() {
         }
     };
 
+    // Add this function inside your ProfilePage component
+    const saveMobileNumberToBackend = async () => {
+        if (!user) return;
+        setLoading(true);
+        setMessage('');
+        try {
+            const token = await getAccessTokenSilently();
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/profile/mobile`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    mobileNumber, // Only send the number, not auth0Id
+                }),
+                credentials: 'include',
+            });
+            const data = await res.json();
+            if (res.ok) {
+                setMessage('Mobile number updated!');
+                setProfile((prev) => prev ? { ...prev, mobileNumber } : prev);
+            } else {
+                setMessage(data.error || 'Failed to update mobile number');
+            }
+        } catch {
+            setMessage('Failed to update mobile number');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     // Save profile changes
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -95,6 +155,7 @@ export default function ProfilePage() {
                 pictureToSend = selectedImage;
             }
             const token = await getAccessTokenSilently();
+            // Save profile (name, picture, etc.)
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/profile/sync`, {
                 method: 'POST',
                 headers: {
@@ -105,7 +166,7 @@ export default function ProfilePage() {
                     user: {
                         sub: user.sub,
                         email: user.email,
-                        nickname,
+                        mobileNumber, // still send to sync for backward compatibility
                         picture: pictureToSend,
                         firstName,
                         lastName,
@@ -115,8 +176,26 @@ export default function ProfilePage() {
             });
             const data = await res.json();
             if (res.ok) {
-                setMessage('Profile updated!');
-                setProfile(data.user);
+                // Save mobile number to /api/profile/mobile as well
+                const mobileRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/profile/mobile`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        mobileNumber,
+                    }),
+                    credentials: 'include',
+                });
+                const mobileData = await mobileRes.json();
+                if (mobileRes.ok) {
+                    setMessage('Profile and mobile number updated!');
+                    setProfile({ ...data.user, mobileNumber });
+                } else {
+                    setMessage(mobileData.error || 'Profile updated, but failed to update mobile number');
+                    setProfile(data.user);
+                }
                 setSelectedImage(data.user.picture);
                 setImageFile(null);
             } else {
@@ -180,15 +259,38 @@ export default function ProfilePage() {
                         />
                     </div>
                     <div>
-                        <label htmlFor="nickname" className="block text-sm font-medium text-gray-700">Nickname</label>
-                        <input
-                            type="text"
-                            id="nickname"
-                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                            value={nickname}
-                            onChange={(e) => setNickname(e.target.value)}
-                            disabled={loading}
-                        />
+                        <label htmlFor="mobileNumber" className="block text-sm font-medium text-gray-700 mb-1">Mobile Number</label>
+                        <div className="flex">
+                            <select
+                                className="rounded-l-md border border-r-0 border-gray-300 bg-gray-100 text-gray-700 text-sm py-2 h-full focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all"
+                                value={countryCode}
+                                onChange={e => setCountryCode(e.target.value)}
+                                disabled={loading}
+                                style={{ minWidth: '140px', maxWidth: '180px' }}
+                            >
+                                {countryCodes.map((c) => (
+                                    <option key={c.code} value={c.code}>
+                                        {c.name} ({c.code})
+                                    </option>
+                                ))}
+                            </select>
+                            <input
+                                type="text"
+                                id="mobileNumber"
+                                className="block w-full px-3 py-2 border border-gray-300 rounded-r-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 sm:text-sm flex-1"
+                                value={mobileNumber}
+                                onChange={e => {
+                                    const value = e.target.value.replace(/\D/g, '').slice(0, 10);
+                                    setMobileNumber(value);
+                                }}
+                                disabled={loading}
+                                inputMode="numeric"
+                                pattern="[0-9]{10}"
+                                maxLength={10}
+                                placeholder="Enter 10-digit number"
+                            />
+                        </div>
+                        <p className="text-xs text-gray-400 mt-1">Select your country and enter a 10-digit mobile number.</p>
                     </div>
                     <div>
                         <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
