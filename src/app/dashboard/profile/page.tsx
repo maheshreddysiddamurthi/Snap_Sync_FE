@@ -4,9 +4,7 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { useCallback, useEffect, useState } from 'react';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Image from 'next/image';
-import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
-import Link from 'next/link';
 
 interface UserDetails {
     role?: string;
@@ -112,36 +110,36 @@ export default function ProfilePage() {
     };
 
     // Add this function inside your ProfilePage component
-    const saveMobileNumberToBackend = async () => {
-        if (!user) return;
-        setLoading(true);
-        setMessage('');
-        try {
-            const token = await getAccessTokenSilently();
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/profile/mobile`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    mobileNumber, // Only send the number, not auth0Id
-                }),
-                credentials: 'include',
-            });
-            const data = await res.json();
-            if (res.ok) {
-                setMessage('Mobile number updated!');
-                setProfile((prev) => prev ? { ...prev, mobileNumber } : prev);
-            } else {
-                setMessage(data.error || 'Failed to update mobile number');
-            }
-        } catch {
-            setMessage('Failed to update mobile number');
-        } finally {
-            setLoading(false);
-        }
-    };
+    // const saveMobileNumberToBackend = async () => {
+    //     if (!user) return;
+    //     setLoading(true);
+    //     setMessage('');
+    //     try {
+    //         const token = await getAccessTokenSilently();
+    //         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/profile/mobile`, {
+    //             method: 'POST',
+    //             headers: {
+    //                 'Authorization': `Bearer ${token}`,
+    //                 'Content-Type': 'application/json',
+    //             },
+    //             body: JSON.stringify({
+    //                 mobileNumber, // Only send the number, not auth0Id
+    //             }),
+    //             credentials: 'include',
+    //         });
+    //         const data = await res.json();
+    //         if (res.ok) {
+    //             setMessage('Mobile number updated!');
+    //             setProfile((prev) => prev ? { ...prev, mobileNumber } : prev);
+    //         } else {
+    //             setMessage(data.error || 'Failed to update mobile number');
+    //         }
+    //     } catch {
+    //         setMessage('Failed to update mobile number');
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
 
     // Save profile changes
     const handleSave = async (e: React.FormEvent) => {

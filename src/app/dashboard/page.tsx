@@ -20,7 +20,7 @@ interface UserDetails {
 }
 
 export default function Dashboard() {
-    const { user, getAccessTokenSilently, isAuthenticated, logout } = useAuth0();
+    const { user, getAccessTokenSilently, logout } = useAuth0();
     const [error, setError] = useState<string | null>(null);
     const [userData, setUserData] = useState<UserDetails | null>(null);
     const [firstName, setFirstName] = useState<string>('');
@@ -253,7 +253,7 @@ export default function Dashboard() {
 
                             <div className="bg-white shadow-sm rounded-lg p-6">
                                 <h2 className="text-2xl font-bold text-gray-900 mb-2">Your Profile</h2>
-                                <p className="text-gray-600">You're signed in as {userData?.role || 'User'}</p>
+                                <p className="text-gray-600">You&apos;re signed in as {userData?.role || 'User'}</p>
                             </div>
 
                             {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
