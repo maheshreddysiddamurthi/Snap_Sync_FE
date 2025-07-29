@@ -3,8 +3,10 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useAuth0 } from '@auth0/auth0-react';
 
 const Hero = () => {
+  const { loginWithRedirect } = useAuth0();
   return (
     <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-b from-blue-500 to-blue-700 overflow-hidden text-gray-900">
       {/* Background decorative elements */}
@@ -32,7 +34,7 @@ const Hero = () => {
             transition={{ duration: 1, ease: "easeOut" }}
             className="space-y-8 lg:w-1/2 lg:pr-10"
           >
-            <motion.h1 
+            <motion.h1
               className="text-5xl sm:text-6xl md:text-7xl font-extrabold text-gray-100 leading-tight -mt-12"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -40,8 +42,8 @@ const Hero = () => {
             >
               Welcome to SnapSync
             </motion.h1>
-            
-            <motion.p 
+
+            <motion.p
               className="max-w-3xl mx-auto lg:mx-0 text-xl text-gray-200 leading-relaxed"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -51,21 +53,20 @@ const Hero = () => {
               with friends and family. Secure, fast, and beautiful.
             </motion.p>
 
-            <motion.div 
+            <motion.div
               className="flex flex-col sm:flex-row gap-6 justify-center lg:justify-start items-center mt-6"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.6 }}
             >
-              <Link href="/signup">
-                <motion.button
-                  whileHover={{ scale: 1.05, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }}
-                  whileTap={{ scale: 0.95 }}
-                  className="w-full sm:w-auto px-10 py-4 bg-white text-blue-600 rounded-full text-xl font-semibold hover:bg-gray-100 transition-all duration-300 shadow-lg"
-                >
-                  Get Started
-                </motion.button>
-              </Link>
+              <motion.button
+                whileHover={{ scale: 1.05, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }}
+                whileTap={{ scale: 0.95 }}
+                className="w-full sm:w-auto px-10 py-4 bg-white text-blue-600 rounded-full text-xl font-semibold hover:bg-gray-100 transition-all duration-300 shadow-lg"
+                onClick={() => loginWithRedirect({ authorizationParams: { screen_hint: 'signup' } })}
+              >
+                Get Started
+              </motion.button>
               <Link href="#how-it-works">
                 <motion.button
                   whileHover={{ scale: 1.05, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }}
@@ -125,7 +126,7 @@ const Hero = () => {
       </div>
 
       {/* Decorative wave */}
-      <motion.div 
+      <motion.div
         className="absolute bottom-0 left-0 right-0"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
