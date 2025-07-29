@@ -2,12 +2,16 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
+```bash
 **Developement**
 npm run dev
 
 **Production** 
 npm run build
 npm run start
+
+```
+
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
