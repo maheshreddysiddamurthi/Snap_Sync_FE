@@ -8,17 +8,6 @@ import Image from 'next/image';
 import { Menu } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 
-interface UserDetails {
-    role?: string;
-    permissions?: string[];
-    picture?: string;
-    name?: string;
-    email?: string;
-    emailVerified?: boolean;
-    firstName?: string;
-    lastName?: string;
-}
-
 export default function Dashboard() {
     const { user, getAccessTokenSilently, logout } = useAuth0();
     const [error, setError] = useState<string | null>(null);
@@ -192,97 +181,6 @@ export default function Dashboard() {
                                 <p className="text-xl text-blue-100">
                                     Hello, {userData?.firstName || user?.given_name || user?.nickname || user?.name || 'User'}
                                 </p>
-                            </div>
-
-                            <div className="bg-white rounded-xl shadow-md p-6 mb-8">
-                                <div className="flex items-center space-x-4 mb-4">
-                                    {/* Avatar with initials fallback */}
-                                    {userData?.picture || user?.picture ? (
-                                        <Image
-                                            src={userData?.picture || user?.picture || 'https://via.placeholder.com/64'}
-                                            alt={userData?.name || user?.name || 'User'}
-                                            className="w-20 h-20 rounded-full object-cover"
-                                            width={80}
-                                            height={80}
-                                        />
-                                    ) : (
-                                        <div className="w-20 h-20 rounded-full bg-gray-400 flex items-center justify-center text-white text-3xl font-semibold">
-                                            {getInitials(
-                                                ((userData?.firstName || firstName || '') + ' ' + (userData?.lastName || lastName || '')).trim(),
-                                                userData?.email || user?.email || ''
-                                            )}
-                                        </div>
-                                    )}
-                                    <div className="flex flex-col justify-center">
-                                        <span className="text-2xl font-bold text-gray-900">
-                                            {(userData?.firstName || firstName) + ' ' + (userData?.lastName || lastName)}
-                                        </span>
-                                        <span className="text-gray-600 text-lg">{userData?.email || user?.email}</span>
-                                    </div>
-                                </div>
-
-                                <div className="space-y-4">
-                                    <div>
-                                        <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">First Name</label>
-                                        <input
-                                            type="text"
-                                            id="firstName"
-                                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                            value={firstName}
-                                            onChange={(e) => setFirstName(e.target.value)}
-                                        />
-                                    </div>
-                                    <div>
-                                        <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">Last Name</label>
-                                        <input
-                                            type="text"
-                                            id="lastName"
-                                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                            value={lastName}
-                                            onChange={(e) => setLastName(e.target.value)}
-                                        />
-                                    </div>
-                                    <button
-                                        onClick={verifyToken}
-                                        className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                                    >
-                                        Save Profile
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div className="bg-white shadow-sm rounded-lg p-6">
-                                <h2 className="text-2xl font-bold text-gray-900 mb-2">Your Profile</h2>
-                                <p className="text-gray-600">You&apos;re signed in as {userData?.role || 'User'}</p>
-                            </div>
-
-                            {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                <div className="bg-white shadow-sm rounded-lg p-6">
-                                    <h3 className="text-lg font-medium text-gray-900 mb-2">Profile Status</h3>
-                                    <p className="text-green-600 font-medium">Active</p>
-                                </div>
-                                <div className="bg-white shadow-sm rounded-lg p-6">
-                                    <h3 className="text-lg font-medium text-gray-900 mb-2">Role</h3>
-                                    <p className="text-gray-600">{userData?.role || 'User'}</p>
-                                </div>
-                                <div className="bg-white shadow-sm rounded-lg p-6">
-                                    <h3 className="text-lg font-medium text-gray-900 mb-2">Permissions</h3>
-                                    <div className="flex flex-wrap gap-2">
-                                        {userData?.permissions?.map((permission) => (
-                                            <span
-                                                key={permission}
-                                                className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
-                                            >
-                                                {permission}
-                                            </span>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div> */}
-
-                            <div className="bg-white shadow-sm rounded-lg p-6">
-                                <h3 className="text-lg font-medium text-gray-900 mb-4">Recent Activity</h3>
-                                <p className="text-gray-500 italic">No recent activity to show</p>
                             </div>
                         </div>
                     )}
