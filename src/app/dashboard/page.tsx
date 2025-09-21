@@ -82,17 +82,6 @@ export default function Dashboard() {
         logout({ logoutParams: { returnTo: window.location.origin } });
     };
 
-    function getInitials(name: string, email: string) {
-        if (name) {
-            const parts = name.split(' ').filter(Boolean);
-            if (parts.length === 0) return email ? email[0].toUpperCase() : '';
-            if (parts.length === 1) return parts[0][0].toUpperCase();
-            return (parts[0][0] + parts[1][0]).toUpperCase();
-        }
-        if (email) return email[0].toUpperCase();
-        return '';
-    }
-
     return (
         <ProtectedRoute>
             <div className="min-h-screen bg-gray-50">
