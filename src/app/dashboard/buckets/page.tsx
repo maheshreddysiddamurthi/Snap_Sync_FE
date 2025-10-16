@@ -31,11 +31,6 @@ export default function BucketsPage() {
             {/* Dashboard Navigation Bar */}
             <nav className="bg-white shadow-sm mb-6">
                 <div className="max-w-2xl mx-auto px-4">
-                    <div className="flex space-x-8 h-12 items-center">
-                        <Link href="/dashboard" className="text-gray-700 hover:text-blue-600 font-medium">Dashboard</Link>
-                        <Link href="/dashboard/buckets" className="text-gray-700 hover:text-blue-600 font-medium">Buckets</Link>
-                        <Link href="/dashboard/profile" className="text-gray-700 hover:text-blue-600 font-medium">Profile</Link>
-                    </div>
                 </div>
             </nav>
             <h1 className="text-3xl font-bold mb-6">Buckets</h1>
