@@ -43,7 +43,8 @@ export default function Dashboard() {
         if (!user) return;
         try {
             const token = await getAccessTokenSilently();
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/profile/sync`, {
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+            const response = await fetch(`${apiUrl}/api/profile/sync`, {
                 method: 'POST',
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -64,16 +65,25 @@ export default function Dashboard() {
                 }),
                 credentials: 'include',
             });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({ error: `HTTP ${response.status}: ${response.statusText}` }));
+                throw new Error(errorData.error || `Failed to fetch user profile: ${response.status} ${response.statusText}`);
+            }
+
             const data = await response.json();
-            if (response.ok && data.user) {
+            if (data.user) {
                 setUserData(data.user);
                 setFirstName(data.user.firstName || '');
                 setLastName(data.user.lastName || '');
+                setError(null);
             } else {
-                setError('Failed to fetch user profile');
+                throw new Error('Invalid response format');
             }
-        } catch (err) {
-            setError((err as Error).message || 'Failed to verify authentication');
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Failed to verify authentication';
+            console.error('Token verification error:', error);
+            setError(errorMessage);
         }
     }, [user, getAccessTokenSilently, firstName, lastName]);
 
@@ -92,20 +102,25 @@ export default function Dashboard() {
         }
         setLoading(true);
         try {
-            const res = await fetch('/api/create-folder', {
+            const token = await getAccessTokenSilently();
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/create-folder`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ folderName: bucketName, type: bucketType }),
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify({ name: bucketName, parentFolderId: null }),
             });
             const data = await res.json();
             if (res.ok) {
-                alert(`✅ Folder "${data.folder}" created successfully!`);
+                alert(`✅ Folder "${data.folder.name}" created successfully!`);
                 setBucketModalOpen(false);
                 setBucketName('');
             } else {
                 alert(`❌ ${data.error}`);
             }
-        } catch (err) {
+        } catch (error) {
+            console.error('Error creating folder:', error);
             alert('Something went wrong while creating the folder');
         } finally {
             setLoading(false);
@@ -139,7 +154,11 @@ export default function Dashboard() {
                                     onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                                     className="inline-flex items-center justify-center p-2 rounded-md text-gray-600 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                                 >
-                                    {mobileMenuOpen ? <XMarkIcon className="h-6 w-6" /> : <Bars3Icon className="h-6 w-6" />}
+                                    {mobileMenuOpen ? (
+                                        <XMarkIcon className="h-6 w-6" />
+                                    ) : (
+                                        <Bars3Icon className="h-6 w-6" />
+                                    )}
                                 </button>
                             </div>
 
@@ -186,7 +205,9 @@ export default function Dashboard() {
                                                     />
                                                     <div>
                                                         <span className="block text-sm font-semibold text-gray-900">{`${userData?.firstName || firstName} ${userData?.lastName || lastName}`}</span>
-                                                        <span className="block text-xs text-gray-500">{userData?.email || user?.email}</span>
+                                                        <span className="block text-xs text-gray-500">
+                                                            {userData?.email || user?.email}
+                                                        </span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -194,21 +215,33 @@ export default function Dashboard() {
                                             <div className="py-1">
                                                 <Menu.Item>
                                                     {({ active }) => (
-                                                        <Link href="/dashboard/profile" className={`flex items-center gap-2 px-4 py-2 text-sm ${active ? 'bg-gray-100' : ''}`}>
+                                                        <Link
+                                                            href="/dashboard/profile"
+                                                            className={`flex items-center gap-2 px-4 py-2 text-sm ${active ? 'bg-gray-100' : ''
+                                                                }`}
+                                                        >
                                                             <UserIcon className="h-5 w-5 text-gray-500" /> Profile
                                                         </Link>
                                                     )}
                                                 </Menu.Item>
                                                 <Menu.Item>
                                                     {({ active }) => (
-                                                        <Link href="/dashboard/settings" className={`flex items-center gap-2 px-4 py-2 text-sm ${active ? 'bg-gray-100' : ''}`}>
+                                                        <Link
+                                                            href="/dashboard/settings"
+                                                            className={`flex items-center gap-2 px-4 py-2 text-sm ${active ? 'bg-gray-100' : ''
+                                                                }`}
+                                                        >
                                                             <Cog6ToothIcon className="h-5 w-5 text-gray-500" /> Settings
                                                         </Link>
                                                     )}
                                                 </Menu.Item>
                                                 <Menu.Item>
                                                     {({ active }) => (
-                                                        <Link href="/dashboard/subscription" className={`flex items-center gap-2 px-4 py-2 text-sm ${active ? 'bg-gray-100' : ''}`}>
+                                                        <Link
+                                                            href="/dashboard/subscription"
+                                                            className={`flex items-center gap-2 px-4 py-2 text-sm ${active ? 'bg-gray-100' : ''
+                                                                }`}
+                                                        >
                                                             <InboxStackIcon className="h-5 w-5 text-gray-500" /> Subscription
                                                         </Link>
                                                     )}
@@ -217,9 +250,11 @@ export default function Dashboard() {
                                                     {({ active }) => (
                                                         <button
                                                             onClick={handleLogout}
-                                                            className={`flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-red-600 ${active ? 'bg-gray-100' : ''}`}
+                                                            className={`flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-red-600 ${active ? 'bg-gray-100' : ''
+                                                                }`}
                                                         >
-                                                            <ArrowRightOnRectangleIcon className="h-5 w-5 text-red-500" /> Logout
+                                                            <ArrowRightOnRectangleIcon className="h-5 w-5 text-red-500" />{' '}
+                                                            Logout
                                                         </button>
                                                     )}
                                                 </Menu.Item>

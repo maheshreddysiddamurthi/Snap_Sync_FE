@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Auth0ProviderWithConfig from "./providers/authoprovider";
+import ClientProviders from "./providers/ClientProviders"; // 👈 use new wrapper
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -16,14 +16,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className={inter.className}>
-        <Auth0ProviderWithConfig>
-          {/* <Navigation /> */}
-          <main className="min-h-screen">
-            {children}
-          </main>
-        </Auth0ProviderWithConfig>
+    <html lang="en" suppressHydrationWarning>
+      <body
+        className={`${inter.className} bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors`}
+      >
+        <ClientProviders>
+          <main className="min-h-screen">{children}</main>
+        </ClientProviders>
       </body>
     </html>
   );

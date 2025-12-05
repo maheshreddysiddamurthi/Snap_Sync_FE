@@ -1,13 +1,11 @@
-/** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: 'class', // 👈 important
   content: [
-    "./app/**/*.{ts,tsx}",       // app directory (pages & layouts)
-    "./components/**/*.{ts,tsx}", // components
-    "./pages/**/*.{ts,tsx}",     // (optional, for legacy pages)
-    "./src/**/*.{ts,tsx}",       // (optional, if you have src dir)
+    "./app/**/*.{ts,tsx}",
+    "./components/**/*.{ts,tsx}",
+    "./pages/**/*.{ts,tsx}",
+    "./src/**/*.{ts,tsx}",
   ],
-  theme: {
-    extend: {},
-  },
+  theme: { extend: {} },
   plugins: [],
-}
+};

@@ -2,7 +2,6 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useAuth0 } from '@auth0/auth0-react';
 
 const Hero = () => {
@@ -35,7 +34,7 @@ const Hero = () => {
             className="space-y-8 lg:w-1/2 lg:pr-10"
           >
             <motion.h1
-              className="text-5xl sm:text-6xl md:text-7xl font-extrabold text-gray-100 leading-tight -mt-12"
+              className="text-5xl sm:text-10xl md:text-7xl font-extrabold text-gray-100 leading-tight -mt-12"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
@@ -80,7 +79,7 @@ const Hero = () => {
           </motion.div>
 
           {/* Hero Images */}
-          <motion.div
+          {/* <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.8, ease: "easeOut" }}
@@ -94,7 +93,7 @@ const Hero = () => {
                 className="object-cover"
               />
             </div>
-          </motion.div>
+          </motion.div> */}
         </div>
 
         {/* Stats */}

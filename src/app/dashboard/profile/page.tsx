@@ -57,10 +57,12 @@ export default function ProfilePage() {
     const fetchProfile = useCallback(async () => {
         if (!user) return;
         setLoading(true);
+        setMessage("");
         try {
             const token = await getAccessTokenSilently();
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
             const res = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/api/profile/sync`,
+                `${apiUrl}/api/profile/sync`,
                 {
                     method: "POST",
                     headers: {
@@ -81,14 +83,26 @@ export default function ProfilePage() {
                     credentials: "include",
                 }
             );
+
+            if (!res.ok) {
+                const errorData = await res.json().catch(() => ({ error: `HTTP ${res.status}: ${res.statusText}` }));
+                throw new Error(errorData.error || `Failed to fetch profile: ${res.status} ${res.statusText}`);
+            }
+
             const data = await res.json();
-            setProfile(data.user);
-            setFirstName(data.user.firstName || "");
-            setLastName(data.user.lastName || "");
-            setMobileNumber(data.user.mobileNumber || user?.mobileNumber || "");
-            setSelectedImage(data.user.picture || user?.picture || null);
-        } catch {
-            setMessage("Failed to load profile");
+            if (data.user) {
+                setProfile(data.user);
+                setFirstName(data.user.firstName || "");
+                setLastName(data.user.lastName || "");
+                setMobileNumber(data.user.mobileNumber || user?.mobileNumber || "");
+                setSelectedImage(data.user.picture || user?.picture || null);
+            } else {
+                throw new Error("Invalid response format");
+            }
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : "Failed to load profile";
+            console.error("Profile fetch error:", error);
+            setMessage(`Error: ${errorMessage}`);
         } finally {
             setLoading(false);
         }
@@ -121,8 +135,9 @@ export default function ProfilePage() {
                 pictureToSend = selectedImage;
             }
             const token = await getAccessTokenSilently();
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
             const res = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/api/profile/sync`,
+                `${apiUrl}/api/profile/sync`,
                 {
                     method: "POST",
                     headers: {
@@ -142,17 +157,21 @@ export default function ProfilePage() {
                     credentials: "include",
                 }
             );
-            const data = await res.json();
-            if (res.ok) {
-                setMessage("Profile updated successfully!");
-                setProfile({ ...data.user, mobileNumber });
-                setSelectedImage(data.user.picture);
-                setImageFile(null);
-            } else {
-                setMessage(data.error || "Failed to update profile");
+
+            if (!res.ok) {
+                const errorData = await res.json().catch(() => ({ error: `HTTP ${res.status}: ${res.statusText}` }));
+                throw new Error(errorData.error || `Failed to update profile: ${res.status} ${res.statusText}`);
             }
-        } catch {
-            setMessage("Failed to update profile");
+
+            const data = await res.json();
+            setMessage("Profile updated successfully!");
+            setProfile({ ...data.user, mobileNumber });
+            setSelectedImage(data.user.picture);
+            setImageFile(null);
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : "Failed to update profile";
+            console.error("Profile update error:", error);
+            setMessage(`Error: ${errorMessage}`);
         } finally {
             setLoading(false);
         }
@@ -286,7 +305,10 @@ export default function ProfilePage() {
                         </button>
 
                         {message && (
-                            <div className="text-center text-green-600 font-medium">
+                            <div className={`text-center font-medium ${message.startsWith("Error:")
+                                ? "text-red-600"
+                                : "text-green-600"
+                                }`}>
                                 {message}
                             </div>
                         )}
