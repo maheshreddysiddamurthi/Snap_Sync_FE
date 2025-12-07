@@ -1,5 +1,5 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-#vercel
+#vercel Version1
 # dependencies
 /node_modules
 node_modules
