@@ -35,11 +35,12 @@ export default function DashboardNav() {
                     {user && (
                         <Menu as="div" className="relative">
                             <Menu.Button
-                                className="flex items-center justify-center h-10 w-10 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition cursor-pointer"
+                                className="flex items-center justify-center h-10 w-10 rounded-lg text-gray-700 hover:text-gray-900 hover:bg-gray-100 ring-1 ring-gray-300/80 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition cursor-pointer"
                                 aria-label="Open account menu"
                                 title="Account menu"
+                                data-profile-trigger="three-dots"
                             >
-                                <EllipsisVerticalIcon className="h-6 w-6" aria-hidden="true" />
+                                <EllipsisVerticalIcon className="h-6 w-6" strokeWidth={2} aria-hidden="true" />
                             </Menu.Button>
 
                             <Transition
